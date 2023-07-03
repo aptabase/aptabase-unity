@@ -14,11 +14,9 @@ namespace AptabaseSDK
             if (aptabaseSettings.AppKey.Contains("SH"))
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("SelfHostURL"));
             
-#if !UNITY_IOS && !UNITY_ANDROID
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("BuildNumber"));
-#endif
 
-            serializedObject.ApplyModifiedProperties();
+                serializedObject.ApplyModifiedProperties();
         }
     }
 }
