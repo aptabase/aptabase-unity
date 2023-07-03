@@ -18,8 +18,6 @@ Based on the key, your `Host` will be selected. In the case of self-hosted versi
 
 App Version is automatically detected, but you will need to provide a `BuildNumber` as it may vary across different platforms. This allows you to specify a platform-specific build number to ensure accurate version tracking and compatibility.
 
-![Project Settings](Docs/project-settings.png)
-
 ## Usage
 
 The Aptabase SDK will seamlessly run in the background as soon as your app starts up. To effortlessly log events, you can use the following code snippet. The Props parameter is optional and can be left empty if not needed.
