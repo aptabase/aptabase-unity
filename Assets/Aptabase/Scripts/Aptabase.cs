@@ -25,7 +25,7 @@ namespace AptabaseSDK
         };
         
         private const string EVENT_ENDPOINT = "/api/v0/event";
-        private const string SDK_VERSION = "0.0.1";
+        private const string SDK_VERSION = "Aptabase.Unity@0.0.1";
 
         private static AptabaseSettings _settings;
 
