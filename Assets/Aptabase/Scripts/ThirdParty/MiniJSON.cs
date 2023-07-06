@@ -32,7 +32,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace AptabaseSDK {
+namespace AptabaseSDK
+{
     // Example usage:
     //
     //  using UnityEngine;
