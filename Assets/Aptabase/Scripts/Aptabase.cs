@@ -98,7 +98,7 @@ namespace AptabaseSDK
                     { "systemProps", new Dictionary<string, object>(7)
                     {
                         { "isDebug", Application.isEditor || Debug.isDebugBuild },
-                        { "osName", SystemInfo.operatingSystemFamily.ToString() },
+                        { "osName", Application.platform.ToString() },
                         { "osVersion", SystemInfo.operatingSystem },
                         { "locale", CultureInfo.CurrentCulture.Name },
                         { "appVersion", Application.version },
