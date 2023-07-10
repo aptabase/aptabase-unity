@@ -1,0 +1,11 @@
+{
+  "name": "com.aptabase",
+  "displayName": "Aptabase",
+  "version": "0.0.1",
+  "unity": "2018.4",
+  "description": "Analytics for Apps. Privacy-First. Simple. Real-Time.",
+  "keywords": ["analytics"],
+  "category": "analytics",
+  "dependencies": {
+  }
+}

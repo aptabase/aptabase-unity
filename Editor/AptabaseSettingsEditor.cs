@@ -7,11 +7,11 @@ namespace AptabaseSDK
     {
         public override void OnInspectorGUI()
         {
-            var aptabaseSettings = (AptabaseSettings)target;
+            var settings = (AptabaseSettings)target;
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AppKey"));
             
-            if (aptabaseSettings.AppKey.Contains("SH"))
+            if (settings.AppKey.Contains("SH"))
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("SelfHostURL"));
             
             EditorGUILayout.PropertyField(serializedObject.FindProperty("BuildNumber"));
