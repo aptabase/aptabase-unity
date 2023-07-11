@@ -6,7 +6,9 @@ Instrument your Unity Engine project with Aptabase, an Open Source, Privacy-Firs
 
 ## Install
 
-Import the Unity Package from Releases.
+You can install the package via [Unity Package Manager](https://docs.unity3d.com/Manual/upm-ui.html).
+
+Go to `Window` > `Package Manager` > `+` > `Add Package from git URL` and enter https://github.com/aptabase/aptabase-unity.git
 
 ## Project settings
 
@@ -23,7 +25,6 @@ App Version is automatically detected, but you will need to provide a `BuildNumb
 The Aptabase SDK will seamlessly run in the background as soon as your app starts up. To effortlessly log events, you can use the following code snippet. The Props parameter is optional and can be left empty if not needed.
 
 ```csharp
-Copy code
 Aptabase.TrackEvent("app_started", new Dictionary<string, object>
 {
     {"hello", "world"}
@@ -42,3 +43,4 @@ A few important notes:
 
 When submitting your app to the Apple App Store, you'll need to fill out the `App Privacy` form. You can find all the answers on our [How to fill out the Apple App Privacy when using Aptabase](https://aptabase.com/docs/apple-app-privacy) guide.
 
+1
