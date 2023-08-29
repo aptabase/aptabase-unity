@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using AptabaseSDK.TinyJson;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace AptabaseSDK
 {
     public static class Aptabase
     {
         private static string _sessionId = NewSessionId();
+        private static Dispatcher _dispatcher;
+        private static EnvironmentInfo _env;
+        private static Settings _settings;
         
         private static DateTime _lastTouched = DateTime.UtcNow;
         private static string _baseURL;
-
+        
         private static readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(60);
         private static readonly Dictionary<string, string> _hosts = new()
         {
@@ -24,16 +26,14 @@ namespace AptabaseSDK
             { "SH", "" },
         };
         
-        private const string EVENT_ENDPOINT = "/api/v0/event";
-        private const string SDK_VERSION = "Aptabase.Unity@0.0.1";
-
-        private static AptabaseSettings _settings;
+        private static int _flushTimer;
+        private static CancellationTokenSource _pollingCancellationTokenSource;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
         {
             //load settings
-            _settings = Resources.Load<AptabaseSettings>("AptabaseSettings");
+            _settings = Resources.Load<Settings>("AptabaseSettings");
             if (_settings == null)
             {
                 Debug.LogWarning("Aptabase Settings not found. Tracking will be disabled");
@@ -48,8 +48,70 @@ namespace AptabaseSDK
                 Debug.LogWarning($"The Aptabase App Key {key} is invalid. Tracking will be disabled");
                 return;
             }
+
+            _env = Environment.GetEnvironmentInfo(Version.GetVersionInfo(_settings));
             
             _baseURL = GetBaseUrl(parts[1]);
+            _dispatcher = new Dispatcher(_settings.AppKey, _baseURL, _env);
+            
+            //create listener
+            var eventFocusHandler = new GameObject("AptabaseFocusHandler");
+            eventFocusHandler.AddComponent<EventFocusHandler>();
+        }
+        
+        private static async void StartPolling(int flushTimer)
+        {
+            StopPolling();
+
+            _flushTimer = flushTimer;
+            _pollingCancellationTokenSource = new CancellationTokenSource();
+            
+            while (_pollingCancellationTokenSource is { IsCancellationRequested: false })
+            {
+                try
+                {
+                    await Task.Delay(_flushTimer, _pollingCancellationTokenSource.Token);
+                    Flush();
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+            }
+        }
+
+        private static void StopPolling()
+        {
+            if (_flushTimer <= 0)
+                return;
+            
+            _pollingCancellationTokenSource?.Cancel();
+            _pollingCancellationTokenSource = null;
+            _flushTimer = 0;
+        }
+        
+        public static void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus)
+            {
+                StartPolling(_settings.FlushInterval > 0 ? Mathf.Max(0, _settings.FlushInterval) : FlushInterval);
+            }
+            else
+            {
+                Flush();
+                StopPolling();
+            }
+        }
+
+        private static string EvalSessionId()
+        {
+            var now = DateTime.UtcNow;
+            var timeSince = now.Subtract(_lastTouched);
+            if (timeSince >= _sessionTimeout)
+                _sessionId = NewSessionId();
+
+            _lastTouched = now;
+            return _sessionId;
         }
         
         private static string GetBaseUrl(string region)
@@ -68,73 +130,30 @@ namespace AptabaseSDK
             return _hosts[region];
         }
 
-        public static void TrackEvent(string eventName, Dictionary<string, object> props = null)
+        public static void Flush()
         {
-            SendEvent(eventName, props);
+            _dispatcher.Flush();
         }
 
-        private static async void SendEvent(string eventName, Dictionary<string, object> props)
+        public static void TrackEvent(string eventName, Dictionary<string, object> props = null)
         {
             if (string.IsNullOrEmpty(_baseURL))
                 return;
             
-            try
+            props ??= new Dictionary<string, object>();
+            var eventData = new Event()
             {
-                var now = DateTime.UtcNow;
-                var timeSince = now.Subtract(_lastTouched);
-                if (timeSince >= _sessionTimeout)
-                    _sessionId = NewSessionId();
-
-                _lastTouched = now;
-
-                props ??= new Dictionary<string, object>();
-                
-                //create the main dictionary for EventData
-                var eventData = Json.Serialize(new Dictionary<string, object>(5)
-                {
-                    { "timestamp", DateTime.UtcNow.ToString("o") },
-                    { "sessionId", _sessionId },
-                    { "eventName", eventName },
-                    { "systemProps", new Dictionary<string, object>(7)
-                    {
-                        { "isDebug", Application.isEditor || Debug.isDebugBuild },
-                        { "osName", Application.platform.ToString() },
-                        { "osVersion", SystemInfo.operatingSystem },
-                        { "locale", CultureInfo.CurrentCulture.Name },
-                        { "appVersion", Application.version },
-                        { "appBuildNumber", _settings.BuildNumber },
-                        { "sdkVersion", SDK_VERSION }
-                    }},
-                    { "props", props }
-                });
-                
-                //send request to end point
-                using var www = new UnityWebRequest($"{_baseURL}{EVENT_ENDPOINT}",
-                    UnityWebRequest.kHttpVerbPOST);
-                www.SetRequestHeader("Content-Type", "application/json");
-                www.SetRequestHeader("App-Key", _settings.AppKey);
-                var requestBytes = Encoding.UTF8.GetBytes(eventData);
-                www.uploadHandler = new UploadHandlerRaw(requestBytes);
-                www.downloadHandler = new DownloadHandlerBuffer();
-
-                var operation = www.SendWebRequest();
-
-                //wait for complete
-                while (!operation.isDone)
-                    await Task.Yield();
-
-                //handle results
-                if (www.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.LogError($"Failed to perform TrackEvent due to {www.responseCode} and response body {www.error}");
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Failed to perform TrackEvent {e}");
-            }
+                timestamp = DateTime.UtcNow.ToString("o"),
+                sessionId = EvalSessionId(),
+                eventName = eventName,
+                systemProps = _env,
+                props = props
+            };
+            
+            _dispatcher.Enqueue(eventData);
         }
         
         private static string NewSessionId() => Guid.NewGuid().ToString().ToLower();
+        private static int FlushInterval => _env.isDebug ? 2000 : 60000;
     }
 }

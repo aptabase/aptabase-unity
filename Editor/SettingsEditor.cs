@@ -2,19 +2,21 @@ using UnityEditor;
 
 namespace AptabaseSDK
 {
-    [CustomEditor(typeof(AptabaseSettings))]
-    public class AptabaseSettingsEditor : Editor
+    [CustomEditor(typeof(Settings))]
+    public class SettingsEditor : Editor
     {
         public override void OnInspectorGUI()
         {
-            var settings = (AptabaseSettings)target;
+            var settings = (Settings)target;
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AppKey"));
             
             if (settings.AppKey.Contains("SH"))
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("SelfHostURL"));
             
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("BuildNumber"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("AppVersion"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("AppBuildNumber"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("FlushInterval"));
 
             serializedObject.ApplyModifiedProperties();
         }
