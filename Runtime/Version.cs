@@ -11,7 +11,7 @@ namespace AptabaseSDK
             return new VersionInfo()
             {
                 sdkVersion = SDK_VERSION,
-                appVersion = !string.IsNullOrEmpty(settings.AppVersion) ? settings.AppVersion : Application.version,
+                appVersion = settings.EnableOverride && !string.IsNullOrEmpty(settings.AppVersion) ? settings.AppVersion : Application.version,
                 appBuildNumber = settings.AppBuildNumber
             };
         }

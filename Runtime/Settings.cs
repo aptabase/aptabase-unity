@@ -6,8 +6,10 @@ namespace AptabaseSDK
     {
         public string AppKey = "A-EU-0000000000";
         public string SelfHostURL;
-        public string AppVersion;
         public string AppBuildNumber;
+        
+        public bool EnableOverride;
+        public string AppVersion;
         public int FlushInterval;
     }
 }

@@ -14,9 +14,14 @@ namespace AptabaseSDK
             if (settings.AppKey.Contains("SH"))
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("SelfHostURL"));
             
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("AppVersion"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AppBuildNumber"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("FlushInterval"));
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("EnableOverride"));
+            if (settings.EnableOverride)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("AppVersion"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("FlushInterval"));
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

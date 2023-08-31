@@ -94,7 +94,7 @@ namespace AptabaseSDK
         {
             if (hasFocus)
             {
-                StartPolling(_settings.FlushInterval > 0 ? Mathf.Max(0, _settings.FlushInterval) : FlushInterval);
+                StartPolling(GetFlushInterval());
             }
             else
             {
@@ -152,8 +152,15 @@ namespace AptabaseSDK
             
             _dispatcher.Enqueue(eventData);
         }
+
+        private static int GetFlushInterval()
+        {
+            if (_settings.EnableOverride && _settings.FlushInterval > 0)
+                return Mathf.Max(0, _settings.FlushInterval);
+
+            return _env.isDebug ? 2000 : 60000;
+        }
         
         private static string NewSessionId() => Guid.NewGuid().ToString().ToLower();
-        private static int FlushInterval => _env.isDebug ? 2000 : 60000;
     }
 }

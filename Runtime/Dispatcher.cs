@@ -12,10 +12,12 @@ namespace AptabaseSDK
     {
         private const string EVENT_ENDPOINT = "/api/v0/event";
         private const string EVENTS_ENDPOINT = "/api/v0/events";
+        
         private const int MAX_BATCH_SIZE = 25;
         
         private readonly Queue<Event> _events;
-        private static UnityWebRequest _webRequest;
+        private static string _apiURL;
+        private static Dictionary<string, string> _headers;
         
         public Dispatcher(string appKey, string baseURL, EnvironmentInfo env)
         {
@@ -23,11 +25,13 @@ namespace AptabaseSDK
             _events = new Queue<Event>();
             
             //setup web request
-            _webRequest = new UnityWebRequest($"{baseURL}{EVENTS_ENDPOINT}", UnityWebRequest.kHttpVerbPOST);
-            _webRequest.SetRequestHeader("Content-Type", "application/json");
-            _webRequest.SetRequestHeader("App-Key", appKey);
-            _webRequest.SetRequestHeader("User-Agent", $"{env.osName}/${env.osVersion} ${env.locale}");
-            _webRequest.downloadHandler = new DownloadHandlerBuffer();
+            _apiURL = $"{baseURL}{EVENTS_ENDPOINT}";
+            _headers = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "App-Key", appKey },
+                { "User-Agent", $"{env.osName}/${env.osVersion} ${env.locale}"}
+            };
         }
         
         public void Enqueue(Event data)
@@ -78,17 +82,23 @@ namespace AptabaseSDK
         {
             try
             {
-                _webRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(events.ToJson()));
-                var operation = _webRequest.SendWebRequest();
+                var webRequest = new UnityWebRequest(_apiURL, UnityWebRequest.kHttpVerbPOST);
+                foreach (var header in _headers)
+                    webRequest.SetRequestHeader(header.Key, header.Value);
+                
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(events.ToJson()));
+                var sendOperation = webRequest.SendWebRequest();
 
                 //wait for complete
-                while (!operation.isDone)
+                while (!sendOperation.isDone)
                     await Task.Yield();
 
                 //handle results
-                if (_webRequest.result != UnityWebRequest.Result.Success)
+                if (webRequest.result != UnityWebRequest.Result.Success)
                 {
-                    Debug.LogError($"Failed to perform TrackEvent due to {_webRequest.responseCode} and response body {_webRequest.error}");
+                    Debug.LogError(
+                        $"Failed to perform TrackEvent due to {webRequest.responseCode} and response body {webRequest.error}");
                 }
             }
             catch (Exception e)
