@@ -47,7 +47,7 @@ namespace AptabaseSDK
                     operatingSystem.osName = "Linux";
                     break;
                 case RuntimePlatform.OSXPlayer:
-                    operatingSystem.osName = "maxOS";
+                    operatingSystem.osName = "macOS";
                     break;
                 case RuntimePlatform.WebGLPlayer:
                     operatingSystem.osName = "WebGL";

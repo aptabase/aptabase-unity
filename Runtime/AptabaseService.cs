@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace AptabaseSDK
 {
-    public class EventFocusHandler : MonoBehaviour
+    public class AptabaseService : MonoBehaviour
     {
         private void Awake()
         {

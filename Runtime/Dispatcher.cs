@@ -10,7 +10,6 @@ namespace AptabaseSDK
 {
     public class Dispatcher
     {
-        private const string EVENT_ENDPOINT = "/api/v0/event";
         private const string EVENTS_ENDPOINT = "/api/v0/events";
         
         private const int MAX_BATCH_SIZE = 25;
@@ -18,6 +17,7 @@ namespace AptabaseSDK
         private readonly Queue<Event> _events;
         private static string _apiURL;
         private static Dictionary<string, string> _headers;
+        private bool _flushInProgress;
         
         public Dispatcher(string appKey, string baseURL, EnvironmentInfo env)
         {
@@ -47,9 +47,10 @@ namespace AptabaseSDK
 
         public async void Flush()
         {
-            if (_events.Count <= 0)
+            if (_flushInProgress || _events.Count <= 0)
                 return;
 
+            _flushInProgress = true;
             var failedEvents = new List<Event>();
             
             //flush all events
@@ -76,6 +77,8 @@ namespace AptabaseSDK
             { 
                 Enqueue(failedEvents);
             }
+
+            _flushInProgress = false;
         }
         
         private static async Task SendEvents(List<Event> events)

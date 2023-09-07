@@ -55,8 +55,8 @@ namespace AptabaseSDK
             _dispatcher = new Dispatcher(_settings.AppKey, _baseURL, _env);
             
             //create listener
-            var eventFocusHandler = new GameObject("AptabaseFocusHandler");
-            eventFocusHandler.AddComponent<EventFocusHandler>();
+            var eventFocusHandler = new GameObject("AptabaseService");
+            eventFocusHandler.AddComponent<AptabaseService>();
         }
         
         private static async void StartPolling(int flushTimer)
