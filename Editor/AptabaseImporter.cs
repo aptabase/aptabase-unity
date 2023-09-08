@@ -15,13 +15,13 @@ namespace AptabaseSDK
         
         static AptabaseImporter()
         {
-            var instance = AssetDatabase.LoadAssetAtPath<AptabaseSettings>(PATH);
+            var instance = AssetDatabase.LoadAssetAtPath<Settings>(PATH);
 
             if (instance != null) 
                 return;
             
             // Create new instance
-            instance = ScriptableObject.CreateInstance<AptabaseSettings>();
+            instance = ScriptableObject.CreateInstance<Settings>();
             if (!System.IO.Directory.Exists(RESOURCE_PATH))
                 System.IO.Directory.CreateDirectory(RESOURCE_PATH);
 

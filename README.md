@@ -18,7 +18,9 @@ Then you have to set it inside the settings file located at `Aptabase/Reosources
 
 Based on the key, your `Host` will be selected. In the case of self-hosted versions a new `SelfHostURL` field will appear for input.
 
-App Version is automatically detected, but you will need to provide a `BuildNumber` as it may vary across different platforms. This allows you to specify a platform-specific build number to ensure accurate version tracking and compatibility.
+App Version is automatically detected, but you can override it with the `AppVersion` field. You may want to provide an `AppBuildNumber` as it may vary across different platforms. This allows you to specify a platform-specific build number to ensure accurate version tracking and compatibility.
+
+Events are batched and sent every 60 seconds in production and 2 seconds in development by default. You can override these values with the `FlushInterval` field by inputting desired time in milliseconds.
 
 ## Usage
 
@@ -29,6 +31,11 @@ Aptabase.TrackEvent("app_started", new Dictionary<string, object>
 {
     {"hello", "world"}
 });
+```
+
+If you want to manually flush the event queue you can use 
+```csharp
+Aptabase.Flush();
 ```
 
 A few important notes:
