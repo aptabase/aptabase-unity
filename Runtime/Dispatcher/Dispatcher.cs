@@ -1,37 +1,35 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AptabaseSDK.TinyJson;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace AptabaseSDK
 {
-    public class Dispatcher
+    public class Dispatcher: IDispatcher
     {
         private const string EVENTS_ENDPOINT = "/api/v0/events";
         
         private const int MAX_BATCH_SIZE = 25;
         
-        private readonly Queue<Event> _events;
         private static string _apiURL;
-        private static Dictionary<string, string> _headers;
+        private static WebRequestHelper _webRequestHelper;
+        private static string _appKey;
+        private static EnvironmentInfo _environment;
+        
         private bool _flushInProgress;
+        private readonly Queue<Event> _events;
         
         public Dispatcher(string appKey, string baseURL, EnvironmentInfo env)
         {
             //create event queue
             _events = new Queue<Event>();
             
-            //setup web request
+            //web request setup information
             _apiURL = $"{baseURL}{EVENTS_ENDPOINT}";
-            _headers = new Dictionary<string, string>
-            {
-                { "Content-Type", "application/json" },
-                { "App-Key", appKey },
-                { "User-Agent", $"{env.osName}/${env.osVersion} ${env.locale}"}
-            };
+            _appKey = appKey;
+            _environment = env;
+            _webRequestHelper = new WebRequestHelper();
         }
         
         public void Enqueue(Event data)
@@ -74,40 +72,15 @@ namespace AptabaseSDK
             } while (_events.Count > 0);
             
             if (failedEvents.Count > 0) 
-            { 
                 Enqueue(failedEvents);
-            }
 
             _flushInProgress = false;
         }
         
         private static async Task SendEvents(List<Event> events)
         {
-            try
-            {
-                var webRequest = new UnityWebRequest(_apiURL, UnityWebRequest.kHttpVerbPOST);
-                foreach (var header in _headers)
-                    webRequest.SetRequestHeader(header.Key, header.Value);
-                
-                webRequest.downloadHandler = new DownloadHandlerBuffer();
-                webRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(events.ToJson()));
-                var sendOperation = webRequest.SendWebRequest();
-
-                //wait for complete
-                while (!sendOperation.isDone)
-                    await Task.Yield();
-
-                //handle results
-                if (webRequest.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.LogError(
-                        $"Failed to perform TrackEvent due to {webRequest.responseCode} and response body {webRequest.error}");
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Failed to perform TrackEvent {e}");
-            }
+            var webRequest = _webRequestHelper.CreateWebRequest(_apiURL, _appKey, _environment, events.ToJson());
+            await _webRequestHelper.SendWebRequestAsync(webRequest);
         }
     }
 }
