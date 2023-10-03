@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using AptabaseSDK.TinyJson;
 using UnityEngine;
 
 namespace AptabaseSDK
@@ -10,7 +9,7 @@ namespace AptabaseSDK
     public static class Aptabase
     {
         private static string _sessionId = NewSessionId();
-        private static Dispatcher _dispatcher;
+        private static IDispatcher _dispatcher;
         private static EnvironmentInfo _env;
         private static Settings _settings;
         
@@ -52,7 +51,12 @@ namespace AptabaseSDK
             _env = Environment.GetEnvironmentInfo(Version.GetVersionInfo(_settings));
             
             _baseURL = GetBaseUrl(parts[1]);
-            _dispatcher = new Dispatcher(_settings.AppKey, _baseURL, _env);
+            
+            #if UNITY_WEBGL
+                _dispatcher = new WebGLDispatcher(_settings.AppKey, _baseURL, _env);
+            #else
+                _dispatcher = new Dispatcher(_settings.AppKey, _baseURL, _env);
+            #endif
             
             //create listener
             var eventFocusHandler = new GameObject("AptabaseService");

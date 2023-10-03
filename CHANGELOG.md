@@ -1,3 +1,8 @@
+## 0.2.1
+
+- WebGL build handling
+- WebRequest helper added
+
 ## 0.2.0
 
 - Events are now sent in batches to reduce network overhead

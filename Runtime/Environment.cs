@@ -50,7 +50,8 @@ namespace AptabaseSDK
                     operatingSystem.osName = "macOS";
                     break;
                 case RuntimePlatform.WebGLPlayer:
-                    operatingSystem.osName = "WebGL";
+                    operatingSystem.osName = string.Empty;
+                    operatingSystem.osVersion = string.Empty;
                     break;
                 case RuntimePlatform.WindowsPlayer:
                     operatingSystem.osName = "Windows";
