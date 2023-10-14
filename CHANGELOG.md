@@ -1,3 +1,7 @@
+## 0.2.2
+
+- Fixed issue with settings importer
+
 ## 0.2.1
 
 - WebGL build handling

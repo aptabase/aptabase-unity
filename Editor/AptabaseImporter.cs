@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,27 +7,32 @@ namespace AptabaseSDK
     /// <summary>
     /// Creates a ScriptableObject representing the Aptabase settings asset in the project's Assets folder.
     /// </summary>
-    [InitializeOnLoad]
-    internal class AptabaseImporter
+    internal class AptabaseImporter : AssetPostprocessor
     {
         private const string RESOURCE_PATH = "Assets/Aptabase/Resources";
         private const string ASSET_PATH = "AptabaseSettings.asset";
         private const string PATH = RESOURCE_PATH + "/" + ASSET_PATH;
         
-        static AptabaseImporter()
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            var instance = AssetDatabase.LoadAssetAtPath<Settings>(PATH);
-
-            if (instance != null) 
-                return;
-            
-            // Create new instance
-            instance = ScriptableObject.CreateInstance<Settings>();
-            if (!System.IO.Directory.Exists(RESOURCE_PATH))
-                System.IO.Directory.CreateDirectory(RESOURCE_PATH);
-
-            AssetDatabase.CreateAsset(instance, PATH);
-            AssetDatabase.SaveAssets();
+            try
+            {
+                //check if file exists
+                if (System.IO.File.Exists(PATH))
+                    return;
+                
+                //create needed directories
+                if (!System.IO.Directory.Exists(RESOURCE_PATH))
+                    System.IO.Directory.CreateDirectory(RESOURCE_PATH);
+                
+                //create new settings file
+                AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<Settings>(), PATH);
+                AssetDatabase.SaveAssets();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("error creating settings file: " + e.Message);
+            }
         }
     }
 }
