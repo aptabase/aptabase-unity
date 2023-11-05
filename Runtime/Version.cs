@@ -4,7 +4,7 @@ namespace AptabaseSDK
 {
     public static class Version
     {
-        private const string SDK_VERSION = "Aptabase.Unity@0.2.2";
+        private const string SDK_VERSION = "Aptabase.Unity@0.2.3";
         
         public static VersionInfo GetVersionInfo(Settings settings)
         {

@@ -1,3 +1,7 @@
+## 0.2.3
+
+- use new session id format
+
 ## 0.2.2
 
 - Fixed issue with settings importer
