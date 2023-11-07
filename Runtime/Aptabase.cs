@@ -17,7 +17,6 @@ namespace AptabaseSDK
         private static string _baseURL;
         
         private static readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(60);
-        private static readonly Random _random = new();
         private static readonly Dictionary<string, string> _hosts = new()
         {
             { "US", "https://us.aptabase.com" },
@@ -169,7 +168,7 @@ namespace AptabaseSDK
         public static string NewSessionId()
         {
             var epochInSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var random = _random.NextInt64(0, 99999999);
+            var random = Random.Range(0, 99999999);
             return (epochInSeconds * 100000000 + random).ToString();
         }
     }
