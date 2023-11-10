@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace AptabaseSDK
 {
@@ -165,6 +166,11 @@ namespace AptabaseSDK
             return _env.isDebug ? 2000 : 60000;
         }
         
-        private static string NewSessionId() => Guid.NewGuid().ToString().ToLower();
+        private static string NewSessionId()
+        {
+            var epochInSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var random = Random.Range(0, 99999999);
+            return (epochInSeconds * 100000000 + random).ToString();
+        }
     }
 }
