@@ -22,16 +22,24 @@ namespace AptabaseSDK
             return webRequest;
         }
         
-        public async Task SendWebRequestAsync(UnityWebRequest request)
+        public async Task<bool> SendWebRequestAsync(UnityWebRequest request)
         {
             var requestOp = request.SendWebRequest();
             while (!requestOp.isDone)
                 await Task.Yield();
 
-            if (requestOp.webRequest.result != UnityWebRequest.Result.Success)
+            var success = requestOp.webRequest.result == UnityWebRequest.Result.Success;
+            if (success)
             {
-                Debug.LogError($"Failed to perform web request due to {requestOp.webRequest.responseCode} and response body {requestOp.webRequest.error}");
+                request.Dispose();
             }
+            else
+            {
+                Debug.LogWarning($"Failed to perform web request due to {requestOp.webRequest.responseCode} and response body {requestOp.webRequest.error}");
+                request.Dispose();
+            }
+
+            return success;
         }
     }
 }

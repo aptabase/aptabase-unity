@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AptabaseSDK.TinyJson;
@@ -60,13 +59,13 @@ namespace AptabaseSDK
                     eventsToSend.Add(_events.Dequeue());
 
                 try
-                {
-                    await SendEvents(eventsToSend);
+                { 
+                    var result = await SendEvents(eventsToSend);
+                    if (!result) failedEvents.AddRange(eventsToSend);
                 }
-                catch (Exception e)
+                catch
                 {
                     failedEvents.AddRange(eventsToSend);
-                    Debug.LogError(e);
                 }
 
             } while (_events.Count > 0);
@@ -77,10 +76,11 @@ namespace AptabaseSDK
             _flushInProgress = false;
         }
         
-        private static async Task SendEvents(List<Event> events)
+        private static async Task<bool> SendEvents(List<Event> events)
         {
             var webRequest = _webRequestHelper.CreateWebRequest(_apiURL, _appKey, _environment, events.ToJson());
-            await _webRequestHelper.SendWebRequestAsync(webRequest);
+            var result = await _webRequestHelper.SendWebRequestAsync(webRequest);
+            return result;
         }
     }
 }

@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AptabaseSDK.TinyJson;
-using UnityEngine;
 
 namespace AptabaseSDK
 {
@@ -56,12 +54,12 @@ namespace AptabaseSDK
                 var eventToSend = _events.Dequeue();
                 try
                 {
-                    await SendEvent(eventToSend);
+                    var result = await SendEvent(eventToSend);
+                    if (!result) failedEvents.Add(eventToSend);
                 }
-                catch (Exception e)
+                catch
                 {
                     failedEvents.Add(eventToSend);
-                    Debug.LogError(e);
                 }
 
             } while (_events.Count > 0);
@@ -72,10 +70,11 @@ namespace AptabaseSDK
             _flushInProgress = false;
         }
         
-        private static async Task SendEvent(Event eventData)
+        private static async Task<bool> SendEvent(Event eventData)
         {
             var webRequest = _webRequestHelper.CreateWebRequest(_apiURL, _appKey, _environment, eventData.ToJson());
-            await _webRequestHelper.SendWebRequestAsync(webRequest);
+            var result = await _webRequestHelper.SendWebRequestAsync(webRequest);
+            return result;
         }
     }
 }
