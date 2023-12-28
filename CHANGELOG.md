@@ -1,6 +1,12 @@
+## 0.2.4
+
+- Fixed memory leak with event errors
+- Fixed event send error handling
+- Reduced logging on errors
+
 ## 0.2.3
 
-- use new session id format
+- Use new session id format
 
 ## 0.2.2
 

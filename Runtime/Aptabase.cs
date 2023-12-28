@@ -165,7 +165,7 @@ namespace AptabaseSDK
 
             return _env.isDebug ? 2000 : 60000;
         }
-        
+
         private static string NewSessionId()
         {
             var epochInSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
