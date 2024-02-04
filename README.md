@@ -14,7 +14,7 @@ Go to `Window` > `Package Manager` > `+` > `Add Package from git URL` and enter 
 
 First, you need to get your `App Key` from Aptabase, you can find it in the `Instructions` menu on the left side menu.
 
-Then you have to set it inside the settings file located at `Aptabase/Reosources/AptabaseSettings.Asset` inside your `App Key` field.
+Then you have to set it inside the settings file located at `Aptabase/Resources/AptabaseSettings.Asset` inside your `App Key` field.
 
 Based on the key, your `Host` will be selected. In the case of self-hosted versions a new `SelfHostURL` field will appear for input.
 
