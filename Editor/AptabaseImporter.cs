@@ -17,6 +17,8 @@ namespace AptabaseSDK
         {
             try
             {
+                if (AssetDatabase.FindAssets($"t:{nameof(Settings)}").Length > 0) return;
+
                 //check if file exists
                 if (System.IO.File.Exists(PATH))
                     return;
