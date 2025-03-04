@@ -87,7 +87,7 @@ namespace AptabaseSDK
         {
             await Flush();
             
-            PlayerPrefs.SetString(APTABASE_KEY, _events.ToList().ToJson());
+            PlayerPrefs.SetString(APTABASE_KEY, _events.Take(1000).ToList().ToJson());
         }
 
         private static async Task<bool> SendEvents(List<Event> events)
