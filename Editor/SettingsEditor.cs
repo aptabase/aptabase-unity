@@ -23,6 +23,8 @@ namespace AptabaseSDK
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("FlushInterval"));
             }
 
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("SessionTimeoutInMinutes"));
+
             serializedObject.ApplyModifiedProperties();
         }
     }
