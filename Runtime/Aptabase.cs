@@ -17,7 +17,7 @@ namespace AptabaseSDK
         private static DateTime _lastTouched = DateTime.UtcNow;
         private static string _baseURL;
         
-        private static readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(60);
+        private static TimeSpan _sessionTimeout = TimeSpan.FromMinutes(60);
         private static readonly Dictionary<string, string> _hosts = new()
         {
             { "US", "https://us.aptabase.com" },
@@ -39,6 +39,9 @@ namespace AptabaseSDK
                 Debug.LogWarning("Aptabase Settings not found. Tracking will be disabled");
                 return;
             }
+
+            if (Settings.SessionTimeoutInMinutes > 0.0)
+                _sessionTimeout = TimeSpan.FromMinutes(Settings.SessionTimeoutInMinutes);
             
             var key = _settings.AppKey;
             
