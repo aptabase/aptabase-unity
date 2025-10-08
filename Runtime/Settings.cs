@@ -11,5 +11,6 @@ namespace AptabaseSDK
         public bool EnableOverride;
         public string AppVersion;
         public int FlushInterval;
+        public double SessionTimeoutInMinutes = 60.0;
     }
 }
