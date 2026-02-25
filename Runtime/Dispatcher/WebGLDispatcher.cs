@@ -1,12 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AptabaseSDK.TinyJson;
+using UnityEngine;
 
 namespace AptabaseSDK
 {
     public class WebGLDispatcher: IDispatcher
     {
         private const string EVENT_ENDPOINT = "/api/v0/event";
+        private const string APTABASE_KEY = "aptabase_key";
         
         private static string _apiURL;
         private static WebRequestHelper _webRequestHelper;
@@ -18,20 +21,24 @@ namespace AptabaseSDK
         
         public WebGLDispatcher(string appKey, string baseURL, EnvironmentInfo env)
         {
+            var cachedEventsJson = PlayerPrefs.GetString(APTABASE_KEY);
+            var cacheEvents = string.IsNullOrEmpty(cachedEventsJson) ? new List<Event>() : cachedEventsJson.FromJson<List<Event>>();
+
             //create event queue
-            _events = new Queue<Event>();
+            _events = new Queue<Event>(cacheEvents);
             
             //web request setup information
             _apiURL = $"{baseURL}{EVENT_ENDPOINT}";
             _appKey = appKey;
             _environment = env;
             _webRequestHelper = new WebRequestHelper();
+
+            PlayerPrefs.DeleteKey(APTABASE_KEY);
         }
         
         public void Enqueue(Event data)
         {
             _events.Enqueue(data);
-            Flush();
         }
         
         private void Enqueue(List<Event> data)
@@ -40,7 +47,7 @@ namespace AptabaseSDK
                 _events.Enqueue(eventData);
         }
 
-        public async void Flush()
+        public async Task Flush()
         {
             if (_flushInProgress || _events.Count <= 0)
                 return;
@@ -69,9 +76,18 @@ namespace AptabaseSDK
 
             _flushInProgress = false;
         }
+
+        public async Task FlushOrSaveToDisk()
+        {
+            await Flush();
+            
+            PlayerPrefs.SetString(APTABASE_KEY, _events.Take(1000).ToList().ToJson());
+        }
         
         private static async Task<bool> SendEvent(Event eventData)
         {
+            if(Application.internetReachability == NetworkReachability.NotReachable) return false;
+            
             var webRequest = _webRequestHelper.CreateWebRequest(_apiURL, _appKey, _environment, eventData.ToJson());
             var result = await _webRequestHelper.SendWebRequestAsync(webRequest);
             return result;

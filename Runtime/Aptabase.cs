@@ -103,7 +103,7 @@ namespace AptabaseSDK
             }
             else
             {
-                Flush();
+                _dispatcher.FlushOrSaveToDisk();
                 StopPolling();
             }
         }
