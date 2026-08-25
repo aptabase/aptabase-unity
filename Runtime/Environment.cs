@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using UnityEngine;
 
@@ -8,8 +9,8 @@ namespace AptabaseSDK
         public static EnvironmentInfo GetEnvironmentInfo(VersionInfo versionInfo)
         {
             var os = GetOperatingSystemInfo();
-            
-            return new EnvironmentInfo()
+
+            return new EnvironmentInfo
             {
                 isDebug = Application.isEditor || Debug.isDebugBuild,
                 locale = CultureInfo.CurrentCulture.Name,
@@ -38,6 +39,7 @@ namespace AptabaseSDK
                         var trimmedVersion = operatingSystem.osVersion[..index].Trim();
                         operatingSystem.osVersion = trimmedVersion;
                     }
+
                     break;
                 case RuntimePlatform.IPhonePlayer:
                     var model = SystemInfo.deviceModel.ToLower();
@@ -60,6 +62,7 @@ namespace AptabaseSDK
                     operatingSystem.osName = Application.platform.ToString();
                     break;
             }
+
             return operatingSystem;
         }
     }
@@ -70,7 +73,7 @@ namespace AptabaseSDK
         public string osVersion;
     }
 
-    public struct EnvironmentInfo
+    public struct EnvironmentInfo : IEquatable<EnvironmentInfo>
     {
         public bool isDebug;
         public string locale;
@@ -79,5 +82,36 @@ namespace AptabaseSDK
         public string osName;
         public string osVersion;
         public string sdkVersion;
+
+        public bool Equals(EnvironmentInfo other)
+        {
+            return isDebug == other.isDebug
+                   && locale == other.locale
+                   && appVersion == other.appVersion
+                   && appBuildNumber == other.appBuildNumber
+                   && osName == other.osName
+                   && osVersion == other.osVersion
+                   && sdkVersion == other.sdkVersion;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is EnvironmentInfo other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(isDebug, locale, appVersion, appBuildNumber, osName, osVersion, sdkVersion);
+        }
+
+        public static bool operator ==(EnvironmentInfo left, EnvironmentInfo right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(EnvironmentInfo left, EnvironmentInfo right)
+        {
+            return !left.Equals(right);
+        }
     }
 }

@@ -33,10 +33,25 @@ Aptabase.TrackEvent("app_started", new Dictionary<string, object>
 });
 ```
 
-If you want to manually flush the event queue you can use 
+If you want to manually flush the event queue you can use:
+```csharp
+await Aptabase.Flush();
+```
+or
 ```csharp
 Aptabase.Flush();
 ```
+
+If you want to react to HttpStatusCodes received from the server, you can use:
+```csharp
+Aptabase.SetResponseListener((statusCode) => UnityEngine.Debug.Log($"Aptabase response status code: {statusCode}"));
+```
+
+If you want to enable or disable the SDK (note: also starts/stops polling), you can use:
+```csharp
+Aptabase.SetEnabled(enabled);
+```
+It defaults to **enabled**.
 
 A few important notes:
 

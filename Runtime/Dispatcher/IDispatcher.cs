@@ -1,9 +1,16 @@
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace AptabaseSDK
 {
     public interface IDispatcher
     {
-        public void Enqueue(Event data);
+        void SetResponseListener(Action<HttpStatusCode> onResponse);
+        
+        void Enqueue(Event data);
 
-        public void Flush();
+        Task Flush(CancellationToken cancellationToken);
     }
 }
