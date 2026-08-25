@@ -8,6 +8,7 @@
 - Fix `Aptabase.Flush()` throwing when the SDK failed to initialize
 - Abort and dispose web requests when the `CancellationToken` fires, instead of leaving them running and re-sending the batch later
 - Align the reported SDK version with the package version
+- Document the `AptabaseSDK` namespace in the README samples (#8)
 
 ## 0.2.6
 - Added support for setting a "ResponseListener" via Aptabase.SetResponseListener. This allows you to receive callbacks with the HttpStatusCode for each event sent

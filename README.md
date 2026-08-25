@@ -26,9 +26,13 @@ Enable `EnableCrashReporting` to automatically report uncaught exceptions, see [
 
 ## Usage
 
-The Aptabase SDK will seamlessly run in the background as soon as your app starts up. To effortlessly log events, you can use the following code snippet. The Props parameter is optional and can be left empty if not needed.
+The Aptabase SDK will seamlessly run in the background as soon as your app starts up. All SDK types live in the `AptabaseSDK` namespace, so add `using AptabaseSDK;` to any script that calls it.
+
+To effortlessly log events, you can use the following code snippet. The Props parameter is optional and can be left empty if not needed.
 
 ```csharp
+using AptabaseSDK;
+
 Aptabase.TrackEvent("app_started", new Dictionary<string, object>
 {
     {"hello", "world"}
@@ -70,6 +74,8 @@ A few important notes:
 Use `TrackError` to report errors you've caught and handled:
 
 ```csharp
+using AptabaseSDK;
+
 try
 {
     DoSomething();
