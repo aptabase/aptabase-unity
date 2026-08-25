@@ -22,6 +22,24 @@ namespace AptabaseSDK
             };
         }
 
+        /// <summary>
+        /// Environment sent with error reports. Identical to the event environment except on WebGL:
+        /// the events endpoint treats an empty osName as "web" and derives the OS from the browser's
+        /// User-Agent, but the error endpoint does no such inference, so it is filled in here instead.
+        /// </summary>
+        public static EnvironmentInfo GetErrorReportingEnvironmentInfo(EnvironmentInfo env)
+        {
+#if UNITY_WEBGL
+            if (string.IsNullOrEmpty(env.osName))
+            {
+                // Same osName the React Native SDK reports on web; the OS the browser reports goes in the version
+                env.osName = "web";
+                env.osVersion = SystemInfo.operatingSystem;
+            }
+#endif
+            return env;
+        }
+
         private static OperatingSystemInfo GetOperatingSystemInfo()
         {
             var operatingSystem = new OperatingSystemInfo

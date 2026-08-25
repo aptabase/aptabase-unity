@@ -8,6 +8,21 @@ using UnityEngine.Networking;
 
 namespace AptabaseSDK
 {
+    public struct WebRequestResult
+    {
+        public bool success;
+        // True when the request was abandoned because the CancellationToken fired
+        public bool cancelled;
+        public UnityWebRequest.Result result;
+        // 0 when the request never reached the server
+        public long statusCode;
+        public string error;
+        public string responseBody;
+
+        // No response at all (offline, DNS, TLS, timeout)
+        public bool isConnectionError => result == UnityWebRequest.Result.ConnectionError;
+    }
+
     public class WebRequestHelper
     {
         private readonly string _appKey;
@@ -33,6 +48,13 @@ namespace AptabaseSDK
             return await SendWebRequestAsync(CreateWebRequest(contents), cancellationToken);
         }
 
+        // Like CreateAndSendWebRequestAsync but leaves logging to the caller and returns the status code,
+        // for callers whose retry decision depends on it
+        public async Task<WebRequestResult> CreateAndSendWebRequestWithResultAsync(string contents, CancellationToken cancellationToken)
+        {
+            return await SendWebRequestWithResultAsync(CreateWebRequest(contents), cancellationToken);
+        }
+
         private UnityWebRequest CreateWebRequest(string contents)
         {
             var webRequest = new UnityWebRequest(_url, UnityWebRequest.kHttpVerbPOST);
@@ -52,26 +74,51 @@ namespace AptabaseSDK
             UnityWebRequest request,
             CancellationToken cancellationToken)
         {
+            var result = await SendWebRequestWithResultAsync(request, cancellationToken);
+            if (result.cancelled)
+                return false;
+
+            if (!result.success)
+                Debug.LogWarning(
+                    $"[AptabaseAnalytics] Failed to perform web request due to {result.statusCode} " +
+                    $"and response body {result.error}, " +
+                    $"result: {result.result}.");
+
+            return result.success;
+        }
+
+        private async Task<WebRequestResult> SendWebRequestWithResultAsync(
+            UnityWebRequest request,
+            CancellationToken cancellationToken)
+        {
             var requestOp = request.SendWebRequest();
             while (!requestOp.isDone)
             {
                 if (cancellationToken.IsCancellationRequested)
-                    return false;
+                {
+                    // Abort so the server doesn't process a request the caller is going to retry anyway
+                    request.Abort();
+                    request.Dispose();
+                    return new WebRequestResult { cancelled = true };
+                }
 
                 await Task.Yield();
             }
 
-            var success = requestOp.webRequest.result is UnityWebRequest.Result.Success;
-            if (!success)
-                Debug.LogWarning(
-                    $"[AptabaseAnalytics] Failed to perform web request due to {requestOp.webRequest.responseCode} " +
-                    $"and response body {requestOp.webRequest.error}, " +
-                    $"result: {requestOp.webRequest.result}.");
+            var webRequest = requestOp.webRequest;
+            var result = new WebRequestResult
+            {
+                success = webRequest.result is UnityWebRequest.Result.Success,
+                result = webRequest.result,
+                statusCode = webRequest.responseCode,
+                error = webRequest.error,
+                responseBody = webRequest.downloadHandler?.text
+            };
 
             try
             {
                 // Invoke the user's (optional) callback with the response code
-                _onResponse?.Invoke((HttpStatusCode)requestOp.webRequest.responseCode);
+                _onResponse?.Invoke((HttpStatusCode)webRequest.responseCode);
             }
             catch (Exception ex)
             {
@@ -83,7 +130,7 @@ namespace AptabaseSDK
                 request.Dispose();
             }
 
-            return success;
+            return result;
         }
 
         public void SetResponseListener(Action<HttpStatusCode> onResponse)

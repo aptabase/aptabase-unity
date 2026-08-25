@@ -1,3 +1,14 @@
+## 0.3.0
+
+- Add `Aptabase.TrackError(Exception, fatal)` for reporting handled errors and crashes as structured error reports (error type, message, stack trace, severity, kind)
+- Add optional automatic crash reporting via the `EnableCrashReporting` setting (uncaught exceptions logged by Unity, process-terminating exceptions and unobserved Task exceptions)
+- Report only the first occurrence of each unique error per session, so a throwing `Update()` doesn't flood the error quota
+- Include `isDebug` in error reports so Editor/development-build errors are kept separate from production data server-side
+- `Aptabase.SetEnabled(false)` also drops error reports
+- Fix `Aptabase.Flush()` throwing when the SDK failed to initialize
+- Abort and dispose web requests when the `CancellationToken` fires, instead of leaving them running and re-sending the batch later
+- Align the reported SDK version with the package version
+
 ## 0.2.6
 - Added support for setting a "ResponseListener" via Aptabase.SetResponseListener. This allows you to receive callbacks with the HttpStatusCode for each event sent
 - Added support for enabling or disabling the SDK via Aptabase.SetEnabled. This starts/stops polling as well.
