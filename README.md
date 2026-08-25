@@ -18,6 +18,8 @@ Then you have to set it inside the settings file located at `Aptabase/Resources/
 
 Based on the key, your `Host` will be selected. In the case of self-hosted versions a new `SelfHostURL` field will appear for input.
 
+Keys in the `A-DEV-*` format target a local Aptabase instance at `https://localhost:3000`; its self-signed development certificate is trusted automatically for loopback addresses (on WebGL, trust it in the browser instead).
+
 App Version is automatically detected, but you can override it with the `AppVersion` field. You may want to provide an `AppBuildNumber` as it may vary across different platforms. This allows you to specify a platform-specific build number to ensure accurate version tracking and compatibility.
 
 Events are batched and sent every 60 seconds in production and 2 seconds in development by default. You can override these values with the `FlushInterval` field by inputting desired time in milliseconds.

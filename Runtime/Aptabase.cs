@@ -28,7 +28,7 @@ namespace AptabaseSDK
         {
             { "US", "https://us.aptabase.com" },
             { "EU", "https://eu.aptabase.com" },
-            { "DEV", "http://localhost:3000" },
+            { "DEV", "https://localhost:3000" },
             { "SH", "" }
         };
 

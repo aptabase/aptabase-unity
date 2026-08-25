@@ -9,6 +9,7 @@
 - Abort and dispose web requests when the `CancellationToken` fires, instead of leaving them running and re-sending the batch later
 - Align the reported SDK version with the package version
 - Document the `AptabaseSDK` namespace in the README samples (#8)
+- The `DEV` region host now points to `https://localhost:3000`, matching the local backend's HTTPS endpoint; https requests to a loopback address trust its self-signed development certificate
 
 ## 0.2.6
 - Added support for setting a "ResponseListener" via Aptabase.SetResponseListener. This allows you to receive callbacks with the HttpStatusCode for each event sent

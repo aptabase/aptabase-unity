@@ -109,6 +109,7 @@ Default flush intervals: 60 seconds in production, 2 seconds in debug/editor bui
 - **Focus handling:** Events auto-flush when app loses focus; polling resumes on regain
 - **Error reports:** One request per report to `/api/v0/error`, same on all platforms; failed sends are retried on the next flush except 403 (monthly error quota exhausted), which is dropped
 - **Error dedupe:** Unity keeps running after an exception, so identical errors (same kind, type, message and stack trace) are reported once per session
+- **Local development:** `A-DEV-*` keys target `https://localhost:3000`; https requests to a loopback address (`localhost`, `127.0.0.1`, `::1`) trust the self-signed dev certificate (not on WebGL)
 
 ## Cross-Discovery
 
