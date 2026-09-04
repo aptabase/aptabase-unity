@@ -1,3 +1,8 @@
+## 0.3.1
+
+- Fix `AptabaseSettings.asset` not being created on install when the project contains another asset whose type is also named `Settings` (#17). The importer now verifies a found asset actually is the Aptabase `Settings` type before skipping creation.
+- Lower the minimum supported Unity version from 6000.0 back to 2021.3 LTS. The SDK uses no Unity 6 APIs; the actual floor is set by `UnityEngine.Pool` and the C# 9 / .NET Standard 2.1 profile introduced in 2021.2.
+
 ## 0.3.0
 
 - Add `Aptabase.TrackError(Exception, fatal)` for reporting handled errors and crashes as structured error reports (error type, message, stack trace, severity, kind)
