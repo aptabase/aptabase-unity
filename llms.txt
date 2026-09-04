@@ -1,6 +1,6 @@
 # Aptabase Unity SDK
 
-> Privacy-first analytics for Unity games and apps. Track events with a simple static API — no MonoBehaviour setup required. Supports Android, iOS, macOS, Windows, Linux, and WebGL.
+> Privacy-first analytics for Unity games and apps. Track events and report errors with a simple static API — no MonoBehaviour setup required. Supports Android, iOS, macOS, Windows, Linux, and WebGL.
 
 ## Overview
 
@@ -62,6 +62,25 @@ Events are batched and sent periodically. To flush immediately:
 Aptabase.Flush();
 ```
 
+## Track Errors
+
+Report handled errors and crashes with `Aptabase.TrackError` (error reporting is in beta):
+
+```csharp
+try
+{
+    DoSomething();
+}
+catch (Exception ex)
+{
+    Aptabase.TrackError(ex);              // severity "error", kind "handled"
+    // or, for errors the app cannot recover from:
+    Aptabase.TrackError(ex, fatal: true); // severity "fatal", kind "crash"
+}
+```
+
+Reports include the exception type, message, stack trace, severity and kind, and are sent immediately (retried on network failure, not persisted to disk). With `EnableCrashReporting` set in the settings asset, exceptions caught by the Unity runtime (`kind: unhandled`), process-terminating exceptions (`kind: crash`, best effort) and unobserved Task exceptions (`kind: taskException`) are reported automatically. Only the first occurrence of each unique error is reported per session (max 100 unique errors per session); `Debug.LogError` messages are not reported.
+
 ## Configuration
 
 All configuration is done via the `AptabaseSettings` ScriptableObject:
@@ -71,6 +90,7 @@ All configuration is done via the `AptabaseSettings` ScriptableObject:
 | `AppKey` | Required. Your Aptabase app key (e.g., `A-EU-0000000000`) |
 | `SelfHostURL` | URL for self-hosted instances (only for `A-SH-*` keys) |
 | `AppBuildNumber` | Optional platform-specific build number |
+| `EnableCrashReporting` | Automatically report uncaught exceptions and crashes as error reports (default: off) |
 | `EnableOverride` | Toggle to enable AppVersion and FlushInterval overrides |
 | `AppVersion` | Override `Application.version` (requires EnableOverride) |
 | `FlushInterval` | Custom flush interval in milliseconds (requires EnableOverride) |
@@ -87,6 +107,9 @@ Default flush intervals: 60 seconds in production, 2 seconds in debug/editor bui
 - **Offline resilience:** Failed events are re-queued and retried on next flush
 - **Scene persistence:** SDK service is marked `DontDestroyOnLoad`
 - **Focus handling:** Events auto-flush when app loses focus; polling resumes on regain
+- **Error reports:** One request per report to `/api/v0/error`, same on all platforms; failed sends are retried on the next flush except 403 (monthly error quota exhausted), which is dropped
+- **Error dedupe:** Unity keeps running after an exception, so identical errors (same kind, type, message and stack trace) are reported once per session
+- **Local development:** `A-DEV-*` keys target `https://localhost:3000`; https requests to a loopback address (`localhost`, `127.0.0.1`, `::1`) trust the self-signed dev certificate (not on WebGL)
 
 ## Cross-Discovery
 

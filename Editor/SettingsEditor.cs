@@ -16,6 +16,8 @@ namespace AptabaseSDK
             
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AppBuildNumber"));
 
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("EnableCrashReporting"));
+
             EditorGUILayout.PropertyField(serializedObject.FindProperty("EnableOverride"));
             if (settings.EnableOverride)
             {
