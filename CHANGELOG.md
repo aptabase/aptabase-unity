@@ -1,3 +1,7 @@
+## 0.3.1
+
+- Fix `AptabaseSettings.asset` not being created on install when the project contains another asset whose type is also named `Settings` (#17). The importer now verifies a found asset actually is the Aptabase `Settings` type before skipping creation.
+
 ## 0.3.0
 
 - Add `Aptabase.TrackError(Exception, fatal)` for reporting handled errors and crashes as structured error reports (error type, message, stack trace, severity, kind)

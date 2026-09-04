@@ -1,7 +1,7 @@
 {
   "name": "com.aptabase",
   "displayName": "Aptabase",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "unity": "6000.0",
   "description": "Analytics for Apps. Privacy-First. Simple. Real-Time.",
   "keywords": [

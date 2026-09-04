@@ -17,12 +17,16 @@ namespace AptabaseSDK
         {
             try
             {
-                if (AssetDatabase.FindAssets($"t:{nameof(Settings)}").Length > 0) return;
-
                 //check if file exists
                 if (System.IO.File.Exists(PATH))
                     return;
-                
+
+                foreach (var guid in AssetDatabase.FindAssets($"t:{nameof(Settings)}"))
+                {
+                    if (AssetDatabase.LoadAssetAtPath<Settings>(AssetDatabase.GUIDToAssetPath(guid)) != null)
+                        return;
+                }
+
                 //create needed directories
                 if (!System.IO.Directory.Exists(RESOURCE_PATH))
                     System.IO.Directory.CreateDirectory(RESOURCE_PATH);
